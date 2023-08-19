@@ -4,8 +4,9 @@ int main ( int ac, char** av ){
     try
     {
         if (ac == 2){
-            BitcoinExchange test;
-            test.checkInput(av[1]);
+            BitcoinExchange test(av[1]);
+            test.checkInput();
+            test.processFile();
         } else 
             std::cout << "Ivalid Args : try with <./btc> & <filename>" << std::endl;
     }

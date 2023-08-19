@@ -5,15 +5,20 @@
 # include <iostream>
 # include <stdexcept>
 # include <fstream>
+# include <cstdlib>
 
 class BitcoinExchange{
     public :
     //Contructor & Destructor
-        BitcoinExchange( void );
+        BitcoinExchange( const std::string& filename );
         ~BitcoinExchange( void );
 
     // Members function
-        void    checkInput( const std::string& filename );
+        void    checkInput( void );
+        void    processFile( void );
+
+    private:
+        const std::string   _fileName;  
 
 };
 
