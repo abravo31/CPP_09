@@ -1,10 +1,40 @@
 #include "BitcoinExchange.hpp"
 
 //Contructor & Destructor
-BitcoinExchange::BitcoinExchange( const std::string& filename ) : _fileName(filename) {}
+BitcoinExchange::BitcoinExchange( const std::string& filename ) : _fileName(filename), _databaseFile("resources/data.csv") {
+    parseExchangeFile();
+}
+
+BitcoinExchange::BitcoinExchange( const BitcoinExchange& copy ) : _fileName(copy._fileName), _databaseFile(copy._databaseFile){}
+
 BitcoinExchange::~BitcoinExchange( void ){}
 
+// Assignement operator
+BitcoinExchange&    BitcoinExchange::operator = ( const BitcoinExchange& src ){
+    
+    if (this != &src )
+        this->_exchangeRates = src._exchangeRates;
+    return *this;
+}
+
 // Members function
+void    BitcoinExchange::parseExchangeFile( void ){
+
+        std::ifstream file(_databaseFile.c_str());
+        if (!file.is_open())
+            throw std::runtime_error("Impossible to open database file.");
+
+        std::string line;
+        while (std::getline(file, line)) {
+            std::stringstream ss(line);
+            std::string date;
+            float value;
+            if (std::getline(ss, date, ',') && ss >> value) {
+                this->_exchangeRates[date] = value;
+            }
+        }
+}
+
 void    BitcoinExchange::checkInput( void )
 {
     // Try to find the last point in the file
@@ -22,7 +52,7 @@ void    BitcoinExchange::checkInput( void )
     file.close();
 }
 
-bool isValidValue(const std::string& valueStr) {
+float isValidValue(const std::string& valueStr) {
     char* endPtr;
     double value = strtod(valueStr.c_str(), &endPtr);
     if (endPtr == valueStr.c_str() || *endPtr != '\0') {
@@ -32,12 +62,12 @@ bool isValidValue(const std::string& valueStr) {
         throw std::runtime_error("not a positive number.");
     if (value > 1000)
         throw std::runtime_error("too large a number.");
-    return (value >= 0 && value <= 1000);
+    return (value);
 }
 
 bool isValidDate(const std::string& dateStr) {
     //std::cout << dateStr.length() << std::endl;
-    if (dateStr.length() != 11) 
+    if (dateStr.length() != 10) 
         return false;
     
     if (dateStr[4] != '-' || dateStr[7] != '-')
@@ -62,6 +92,23 @@ bool isValidDate(const std::string& dateStr) {
     return (true);
 }
 
+float   BitcoinExchange::walletValue( const std::string targetDate ){
+
+    std::map<std::string, double>::iterator closest = this->_exchangeRates.lower_bound(targetDate);
+    if (closest != this->_exchangeRates.begin()) {
+        std::map<std::string, double>::iterator before = closest;
+        --before;
+        if (closest->first == targetDate) {
+            return closest->second;
+        } else {
+           return before->second;
+        }
+    } else if (closest == this->_exchangeRates.begin() && closest->first > targetDate){
+        return 0;
+    } else {
+        return this->_exchangeRates.begin()->second;
+    }
+}
 
 void BitcoinExchange::processFile( void ){
 
@@ -81,12 +128,16 @@ void BitcoinExchange::processFile( void ){
                 throw std::runtime_error("bad input => " + line);
             }
 
-            std::string dateString = line.substr(0, separatorPos);
+            std::string dateString = line.substr(0, separatorPos - 1);
             std::string valueString = line.substr(separatorPos + 1);
-
-            if (!isValidDate(dateString) || !isValidValue(valueString)) {
+            float value = isValidValue(valueString);
+            if (!isValidDate(dateString) || !value) {
                 throw std::runtime_error("Format de ligne incorrect : " + line);
             }
+            float res;
+            res = this->walletValue(dateString);
+            std::cout << dateString << " => " << value << " = " << res * value << std::endl;
+
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << '\n';
         }
