@@ -11,7 +11,7 @@
 
 class BitcoinExchange{
     public :
-    //Contructor & Destructor
+    //Contructors
         BitcoinExchange( const std::string& filename );
         BitcoinExchange( const BitcoinExchange& copy );
         ~BitcoinExchange( void );
@@ -22,10 +22,12 @@ class BitcoinExchange{
     // Members function
         void    checkInput( void );
         void    processFile( void );
+
+    private:
+
         void    parseExchangeFile( void );
         float   walletValue( const std::string targetDate );
 
-    private:
         const std::string               _fileName;
         const std::string               _databaseFile;
         std::map<std::string, double>   _exchangeRates;
