@@ -6,6 +6,7 @@ int main ( int ac, char** av ){
         if (ac == 2){
             RPN cal(av[1]);
             cal.evaluateRPN();
+            std::cout << cal << std::endl;
         } else 
             std::cout << "Ivalid Args : try with <./RPN> & <7 7 * 7 ->" << std::endl;
     }

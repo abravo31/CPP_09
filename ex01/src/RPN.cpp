@@ -21,9 +21,9 @@ RPN&    RPN::operator = ( const RPN& src ){
 static std::string removeWhitespace(const std::string& input) {
     std::string res;
 
-    for (char c : input) {
-        if (!std::isspace(c)) {
-            res += c;
+    for (std::size_t i = 0; i < input.size(); i++) {
+        if (!std::isspace(input[i])) {
+            res += input[i];
         }
     }
     return res;
@@ -39,20 +39,35 @@ void RPN::evaluateRPN( void ) {
         char c = toEvaluate[i];
         if (isdigit(c)) {
             token += c;
-        } else if (c == '+' || c == '-' || c == '*' || c == '/')
+        } else if (c == '+' || c == '-' || c == '*' || c == '/'){
+            if (this->_operands.size() < 2)
+				throw std::runtime_error("Insufficient operands.");
             // If the token is an operator, pop operands, apply the operator, and push the result
             int operand2 = this->_operands.top();
             this->_operands.pop();
             int operand1 = this->_operands.top();
             this->_operands.pop();
 
-            if (token == "+") this->_operands.push(operand1 + operand2);
-            else if (token == "-") this->_operands.push(operand1 - operand2);
-            else if (token == "*") this->_operands.push(operand1 * operand2);
-            else if (token == "/") this->_operands.push(operand1 / operand2);
-        }
+            if (c == '+') this->_operands.push(operand1 + operand2);
+            else if (c == '-') this->_operands.push(operand1 - operand2);
+            else if (c == '*') this->_operands.push(operand1 * operand2);
+            else if (c == '/'){
+                if (operand2 == 0)
+                    throw std::runtime_error("Division by zero is impossible.");
+                this->_operands.push(operand1 / operand2);
+            }
+        } else
+            throw std::runtime_error("Invalid Token.");
+        if (!token.empty())
+		{
+			this->_operands.push(atoi(token.c_str()));
+			token.clear();
+		}
     }
+    if (this->_operands.size() != 1)
+        throw std::runtime_error("To many operands.");
     this->_result = _operands.top();
+    this->_operands.pop();
 }
 
 int	RPN::getResult(void) const {
