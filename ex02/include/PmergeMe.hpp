@@ -9,7 +9,7 @@
 class PmergeMe {
     public:
     //Constructor & Destructor
-        PmergeMe( const std::string input );
+        PmergeMe( void );
         PmergeMe( const PmergeMe& copy );
         ~PmergeMe( void );
     
@@ -17,13 +17,14 @@ class PmergeMe {
         PmergeMe&    operator = ( const PmergeMe& src );
 
     //Member Functions
-        void    checkInput( void );
+        void                checkInput( char **av, int ac );
+        std::vector<int>    parseVector( char **args, int size )
 
     //Getter
         int     getResult( void ) const;  
 
     private:
-        std::string         _input;
+        int                 _size;
         //int             _result;
         std::vector<int>    _vector;
         std::list<int>      _list;

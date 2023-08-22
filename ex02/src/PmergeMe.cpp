@@ -16,9 +16,37 @@ PmergeMe&    PmergeMe::operator = ( const PmergeMe& src ){
     }
 }
 
+std::vector<int>    PmergeMe::parseVector( char **args, int size ){
+    vector<int> copy;
+
+    for (size_t i = 0; i < size; ++i){
+        
+        std::string arg = args[i];
+        int val = atoi(arg.c_str());
+        if ( val <= 0 )
+            throw std::runtime_error("Invalid argument value.")
+        copy.push_back(val);
+    }
+    return copy;
+}
+
+std::vector<int>    PmergeMe::parseList( char **args, int size ){
+    list<int> copy;
+
+    for (size_t i = 0; i < size; ++i){
+        
+        std::string arg = args[i];
+        int val = atoi(arg.c_str());
+        if ( val <= 0 )
+            throw std::runtime_error("Invalid argument value.")
+        copy.push_back(val);
+    }
+    return copy;
+}
+
 //Member Functions
-void    PmergeMe::checkInput( void ){
-    std::string token;
+void    PmergeMe::checkInput( char** av, int ac ){
+    this->_vector = parseVector(ac, av);
 
     for (std::size_t i = 0; i < _input.length(); i++) {
         
