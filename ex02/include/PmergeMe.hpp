@@ -2,9 +2,12 @@
 # define PMERGEME_HPP
 
 # include <string>
-# include <vector>
-# include <iostream>
-# include <list>
+# include <vector> //vector to sort
+# include <iostream> //cout
+# include <list> //list to sort
+# include <set> //set container to find duplicates
+# include <sys/time.h> //gettimeofday
+# include <stdlib.h> //atoi
 
 class PmergeMe {
     public:
@@ -18,18 +21,24 @@ class PmergeMe {
 
     //Member Functions
         void                checkInput( char **av, int ac );
-        std::vector<int>    parseVector( char **args, int size )
+        std::vector<int>    parseVector( char **args, int size );
+        std::list<int>      parseList( char **args, int size );
+        void                findDouble( void );
+        void                printBeforeAndAfter( void );
 
     //Getter
-        int     getResult( void ) const;  
+        //int     getResult( void ) const;
+        double  getTime( void ); 
 
     private:
         int                 _size;
-        //int             _result;
+        bool                _sorted;
         std::vector<int>    _vector;
         std::list<int>      _list;
+        double              _timeVector;
+        double              _timeList;
 };
 
-std::ostream&	operator<<(std::ostream& o, const PmergeMe& i);
+// std::ostream&	operator << (std::ostream& o, const PmergeMe& i);
 
 #endif

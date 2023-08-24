@@ -20,7 +20,7 @@ UP			=	\033[A
 CUT			=	\033[K
 
 #source files
-SRC_FILES	=	BitcoinExchange.cpp main.cpp
+SRC_FILES	=	PmergeMe.cpp main.cpp
 
 OBJ_FILES	=	$(SRC_FILES:.cpp=.o)
 
