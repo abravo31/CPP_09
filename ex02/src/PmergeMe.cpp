@@ -81,6 +81,39 @@ double	PmergeMe::getTime( void ){
 	return ((time.tv_sec * 1000) + (time.tv_usec * 0.001));
 }
 
+template<typename Container>
+void    PmergeMe::insertSort(Container& toSort, int low, int high){
+    
+    //const int threshold = 16;
+    for (int i = low + 1; i <= high; ++i) {
+        typename Container::value_type key = toSort[i];
+        int j = i - 1;
+
+        while (j >= low && toSort[j] > key) {
+            toSort[j + 1] = toSort[j];
+            --j;
+        }
+        // std::cout << "Pair: " << toSort[j] << " " << toSort[j + 1] << std::endl;
+        // std::cout << "j = " << j << " & " << "(j + 1) = " << j+1 << std::endl << std::endl;
+        toSort[j + 1] = key;
+    }
+}
+
+template<typename Container>
+void    PmergeMe::mergeIsertSort( Container& toSort, int low, int high ){
+
+    const int threshold = 16;
+
+    if (high - low < threshold)
+        insertSort(toSort, low, high);
+    else {
+        int mid = (low + high) / 2;
+        std::cout <<"mid: " << mid << std::endl << std::endl;
+        mergeIsertSort(toSort, low, mid);
+        mergeIsertSort(toSort, mid + 1, high);
+    }
+}
+
 //Member Functions
 void    PmergeMe::checkInput( char** av, int ac ){
     
@@ -88,6 +121,10 @@ void    PmergeMe::checkInput( char** av, int ac ){
     findDouble();
     this->_list = parseList(av, ac);
 
+    printBeforeAndAfter();
+    mergeIsertSort(_vector, 0, _vector.size() - 1);
+
+    _sorted = true;
     printBeforeAndAfter();
 
     // for (std::size_t i = 0; i < _input.length(); i++) {

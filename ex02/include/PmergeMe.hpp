@@ -29,6 +29,11 @@ class PmergeMe {
     //Getter
         //int     getResult( void ) const;
         double  getTime( void ); 
+        
+        template<typename Container>
+        void    insertSort( Container& toSort, int low, int high );
+        template<typename Container>
+        void    mergeIsertSort( Container& toSort, int low, int high );
 
     private:
         int                 _size;
