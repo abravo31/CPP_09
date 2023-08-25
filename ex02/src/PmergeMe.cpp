@@ -12,9 +12,11 @@ PmergeMe::~PmergeMe( void ){}
 //Assignement operator
 PmergeMe&    PmergeMe::operator = ( const PmergeMe& src ){
     if (this != &src){
-        //this->_input = src._input;
         this->_vector = src._vector;
-        this->_list = src._list;
+        this->_deque = src._deque;
+        this->_sorted = src._sorted;
+        this->_timeDeque = src._timeDeque;
+        this->_timeVector = src._timeVector;
     }
     return *this;
 }
@@ -33,8 +35,8 @@ std::vector<int>    PmergeMe::parseVector( char **args, int size ){
     return copy;
 }
 
-std::list<int>    PmergeMe::parseList( char **args, int size ){
-    std::list<int> copy;
+std::deque<int>    PmergeMe::parseDeque( char **args, int size ){
+    std::deque<int> copy;
 
     for (int i = 1; i < size - 1; ++i){
         
@@ -61,7 +63,7 @@ void            PmergeMe::findDouble( void ){
 void            PmergeMe::printBeforeAndAfter( void ){
 
     if (_sorted == false)
-        std::cout << "Before : ";
+        std::cout << std::endl << "Before : ";
     else
         std::cout << "After : ";
     std::vector<int>::iterator itBegin = _vector.begin();
@@ -70,7 +72,7 @@ void            PmergeMe::printBeforeAndAfter( void ){
         std::cout << " " << *itBegin;
         itBegin++;
     }
-    std::cout << std::endl;
+    std::cout << std::endl << std::endl;
 }
 
 double	PmergeMe::getTime( void ){
@@ -81,65 +83,123 @@ double	PmergeMe::getTime( void ){
 	return ((time.tv_sec * 1000) + (time.tv_usec * 0.001));
 }
 
-template<typename Container>
-void    PmergeMe::insertSort(Container& toSort, int low, int high){
-    
-    //const int threshold = 16;
-    for (int i = low + 1; i <= high; ++i) {
-        typename Container::value_type key = toSort[i];
-        int j = i - 1;
+double	PmergeMe::deltaTime( long long time ) {
+	if (time > 0)
+		return (getTime() - time);
+	return (0);
+}
 
-        while (j >= low && toSort[j] > key) {
-            toSort[j + 1] = toSort[j];
+template<typename Container>
+void    PmergeMe::insertSort(Container& toSort ){
+    
+    for (typename Container::iterator i = toSort.begin(); i != toSort.end(); ++i) {
+        typename Container::iterator j = i;
+
+        while (j != toSort.begin() && *(j - 1) > *j) {
+            std::swap(*j, *(j - 1));
             --j;
         }
-        // std::cout << "Pair: " << toSort[j] << " " << toSort[j + 1] << std::endl;
-        // std::cout << "j = " << j << " & " << "(j + 1) = " << j+1 << std::endl << std::endl;
-        toSort[j + 1] = key;
     }
 }
 
 template<typename Container>
-void    PmergeMe::mergeIsertSort( Container& toSort, int low, int high ){
+void    PmergeMe::merge( Container& toSort, Container& left, Container& right ){
+
+    typename Container::iterator i = left.begin();
+	typename Container::iterator j = right.begin();
+	typename Container::iterator k = toSort.begin();
+
+    while (i != left.end() && j != right.end()){
+        if (*i < *j) {
+            *k = *i;
+            ++i;
+        } else {
+            *k = *j;
+            ++j;
+        }
+        ++k;
+        //std::cout << "Hello" << std::endl;
+    }
+    while (i != left.end()){
+        *k = *i;
+        ++i;
+        ++k;
+    }
+    while (j != right.end()){
+        *k = *j;
+        ++j;
+        ++k;
+    }
+}
+
+template<typename Container>
+void    PmergeMe::mergeInsertSort( Container& toSort ){
 
     const int threshold = 16;
+    const int size = toSort.size();
 
-    if (high - low < threshold)
-        insertSort(toSort, low, high);
+    if ( size < threshold)
+        insertSort(toSort);
     else {
-        int mid = (low + high) / 2;
-        std::cout <<"mid: " << mid << std::endl << std::endl;
-        mergeIsertSort(toSort, low, mid);
-        mergeIsertSort(toSort, mid + 1, high);
+        typename Container::iterator mid = toSort.begin() + (size / 2);
+        //std::cout <<"mid: " << mid << std::endl << std::endl;
+        Container left(toSort.begin(), mid);
+	    Container right(mid, toSort.end());
+        mergeInsertSort(left);
+        mergeInsertSort(right);
+        merge(toSort, left, right);
     }
+}
+
+void	PmergeMe::printTime(std::string result) const {
+	double time;
+	if (result == "Vector")
+		time = this->_timeVector;
+	else if (result == "Deque")
+		time = this->_timeDeque;
+	std::cout 
+		<< "Time to process a range of " << this->_vector.size() 
+		<< " elements with std::" << result << ": "
+		<< std::fixed << std::setprecision(5) << time << " ms" << std::endl;
 }
 
 //Member Functions
-void    PmergeMe::checkInput( char** av, int ac ){
+void    PmergeMe::runInput( char** av, int ac ){
     
     this->_vector = parseVector(av, ac);
     findDouble();
-    this->_list = parseList(av, ac);
+    this->_deque = parseDeque(av, ac);
 
     printBeforeAndAfter();
-    mergeIsertSort(_vector, 0, _vector.size() - 1);
+
+    double start = getTime();
+    mergeInsertSort(this->_vector);
+    _timeVector = deltaTime(start);
+
+    start = getTime();
+	mergeInsertSort(this->_deque);
+	_timeDeque = deltaTime(start);
+
 
     _sorted = true;
     printBeforeAndAfter();
 
-    // for (std::size_t i = 0; i < _input.length(); i++) {
-        
-    //     char c = _input[i];
-    //     if (isdigit(c))
-    //         token += c;
-    // }
+    printTime("Vector");
+    printTime("Deque");
 }
 
-//Getter
-// int     PmergeMe::getResult( void ) const{
+//Getters
+double	PmergeMe::getVectorTime(void) const {
+	return (this->_timeVector);
+}
 
-// } 
+double	PmergeMe::getDequeTime(void) const {
+	return (this->_timeDeque);
+}
 
-// std::ostream&	operator << (std::ostream& o, const PmergeMe& i){
-
-// }
+std::ostream&	operator << (std::ostream& o, const PmergeMe& i){
+    	o 
+		<< "Vector delta time: " << i.getVectorTime() << std::endl
+		<< "Deque delta time: " << i.getDequeTime();
+	return o;
+}

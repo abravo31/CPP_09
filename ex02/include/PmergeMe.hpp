@@ -4,10 +4,11 @@
 # include <string>
 # include <vector> //vector to sort
 # include <iostream> //cout
-# include <list> //list to sort
+# include <deque> //list to sort
 # include <set> //set container to find duplicates
 # include <sys/time.h> //gettimeofday
 # include <stdlib.h> //atoi
+# include <iomanip> //setprecision
 
 class PmergeMe {
     public:
@@ -20,30 +21,39 @@ class PmergeMe {
         PmergeMe&    operator = ( const PmergeMe& src );
 
     //Member Functions
-        void                checkInput( char **av, int ac );
-        std::vector<int>    parseVector( char **args, int size );
-        std::list<int>      parseList( char **args, int size );
-        void                findDouble( void );
-        void                printBeforeAndAfter( void );
-
-    //Getter
-        //int     getResult( void ) const;
-        double  getTime( void ); 
-        
-        template<typename Container>
-        void    insertSort( Container& toSort, int low, int high );
-        template<typename Container>
-        void    mergeIsertSort( Container& toSort, int low, int high );
+        void                runInput( char **av, int ac );
+    
+    //Publics Getters
+        double	getVectorTime(void) const;
+        double	getDequeTime(void) const;
 
     private:
-        int                 _size;
+
         bool                _sorted;
         std::vector<int>    _vector;
-        std::list<int>      _list;
+        std::deque<int>     _deque;
         double              _timeVector;
-        double              _timeList;
+        double              _timeDeque;
+
+        std::vector<int>    parseVector( char **args, int size );
+        std::deque<int>     parseDeque( char **args, int size );
+        void                findDouble( void );
+        void                printBeforeAndAfter( void );
+        void                printTime(std::string result) const;
+        double              deltaTime( long long time );
+
+    // Pivate Getters
+
+        double  getTime( void );
+        
+        template<typename Container> 
+        void    insertSort( Container& toSort );
+        template<typename Container> 
+        void    mergeInsertSort( Container& toSort );
+        template<typename Container> 
+        void    merge( Container& toSort, Container& left, Container& right );
 };
 
-// std::ostream&	operator << (std::ostream& o, const PmergeMe& i);
+std::ostream&	operator << (std::ostream& o, const PmergeMe& i);
 
 #endif
